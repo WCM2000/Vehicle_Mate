@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m venv /tmp/claude-1000/-home-wenura-Projects-FlutterProjects-vehicle-mate/113840a8-4a78-4777-9dc8-c3c2f04ae04e/scratchpad/qrenv)",
+      "Bash(/tmp/claude-1000/-home-wenura-Projects-FlutterProjects-vehicle-mate/113840a8-4a78-4777-9dc8-c3c2f04ae04e/scratchpad/qrenv/bin/pip install *)"
+    ]
+  }
+}

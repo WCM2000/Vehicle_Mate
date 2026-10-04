@@ -1,0 +1,7 @@
+{
+  "java.import.gradle.java.home": "/snap/android-studio/current/jbr",
+  "java.jdt.ls.java.home": "/snap/android-studio/current/jbr",
+  "cmake.ignoreCMakeListsMissing": true,
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "interactive"
+}
