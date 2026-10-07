@@ -54,3 +54,23 @@ final smsListenerProvider = Provider<FuelSmsListener>(
     ref.watch(quotaServiceProvider),
   ),
 );
+
+final serviceLogsProvider = StreamProvider<List<ServiceLog>>((ref) {
+  final db = ref.watch(databaseProvider);
+  final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
+  if (vehicle == null) return Stream.value(const []);
+  return (db.select(db.serviceLogs)
+        ..where((t) => t.vehicleId.equals(vehicle.id))
+        ..orderBy([(t) => OrderingTerm.desc(t.serviceDate)]))
+      .watch();
+});
+
+final fuelTransactionsProvider = StreamProvider<List<FuelTransaction>>((ref) {
+  final db = ref.watch(databaseProvider);
+  final vehicle = ref.watch(activeVehicleProvider).valueOrNull;
+  if (vehicle == null) return Stream.value(const []);
+  return (db.select(db.fuelTransactions)
+        ..where((t) => t.vehicleId.equals(vehicle.id))
+        ..orderBy([(t) => OrderingTerm.asc(t.transactionDate)]))
+      .watch();
+});

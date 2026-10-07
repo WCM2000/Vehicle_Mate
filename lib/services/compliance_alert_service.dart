@@ -59,7 +59,7 @@ class ComplianceAlertService {
 
       await _plugin.zonedSchedule(
         log.id * 10 + stage.offset,
-        '${_label(log.type)} expires in ${stage.daysBefore} day(s)',
+        _title(stage, _label(log.type)),
         'Vehicle $plateNumber: renew before ${_formatDate(expiry)}',
         scheduled,
         NotificationDetails(
@@ -106,6 +106,12 @@ class ComplianceAlertService {
           ..where((t) => t.expiresAt.isSmallerOrEqualValue(cutoff))
           ..orderBy([(t) => OrderingTerm.asc(t.expiresAt)]))
         .get();
+  }
+
+  static String _title(_Stage stage, String label) {
+    if (stage.daysBefore == 1) return 'Final Notice: $label Expires Tomorrow!';
+    if (stage.daysBefore == 7) return 'Urgent: $label expires in 7 days';
+    return '$label expires in ${stage.daysBefore} days';
   }
 
   static String _label(String type) => switch (type) {

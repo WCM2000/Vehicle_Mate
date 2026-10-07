@@ -116,6 +116,30 @@ class $VehiclesTable extends Vehicles with TableInfo<$VehiclesTable, Vehicle> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _currentOdometerKmMeta = const VerificationMeta(
+    'currentOdometerKm',
+  );
+  @override
+  late final GeneratedColumn<int> currentOdometerKm = GeneratedColumn<int>(
+    'current_odometer_km',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _avgKmPerDayMeta = const VerificationMeta(
+    'avgKmPerDay',
+  );
+  @override
+  late final GeneratedColumn<double> avgKmPerDay = GeneratedColumn<double>(
+    'avg_km_per_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(30.0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -127,6 +151,8 @@ class $VehiclesTable extends Vehicles with TableInfo<$VehiclesTable, Vehicle> {
     remainingQuotaL,
     quotaResetAt,
     isActive,
+    currentOdometerKm,
+    avgKmPerDay,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -208,6 +234,24 @@ class $VehiclesTable extends Vehicles with TableInfo<$VehiclesTable, Vehicle> {
         isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
       );
     }
+    if (data.containsKey('current_odometer_km')) {
+      context.handle(
+        _currentOdometerKmMeta,
+        currentOdometerKm.isAcceptableOrUnknown(
+          data['current_odometer_km']!,
+          _currentOdometerKmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('avg_km_per_day')) {
+      context.handle(
+        _avgKmPerDayMeta,
+        avgKmPerDay.isAcceptableOrUnknown(
+          data['avg_km_per_day']!,
+          _avgKmPerDayMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -253,6 +297,14 @@ class $VehiclesTable extends Vehicles with TableInfo<$VehiclesTable, Vehicle> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
       )!,
+      currentOdometerKm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_odometer_km'],
+      )!,
+      avgKmPerDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}avg_km_per_day'],
+      )!,
     );
   }
 
@@ -272,6 +324,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
   final double remainingQuotaL;
   final int? quotaResetAt;
   final bool isActive;
+  final int currentOdometerKm;
+  final double avgKmPerDay;
   const Vehicle({
     required this.id,
     required this.plateNumber,
@@ -282,6 +336,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
     required this.remainingQuotaL,
     this.quotaResetAt,
     required this.isActive,
+    required this.currentOdometerKm,
+    required this.avgKmPerDay,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -303,6 +359,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
       map['quota_reset_at'] = Variable<int>(quotaResetAt);
     }
     map['is_active'] = Variable<bool>(isActive);
+    map['current_odometer_km'] = Variable<int>(currentOdometerKm);
+    map['avg_km_per_day'] = Variable<double>(avgKmPerDay);
     return map;
   }
 
@@ -323,6 +381,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
           ? const Value.absent()
           : Value(quotaResetAt),
       isActive: Value(isActive),
+      currentOdometerKm: Value(currentOdometerKm),
+      avgKmPerDay: Value(avgKmPerDay),
     );
   }
 
@@ -341,6 +401,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
       remainingQuotaL: serializer.fromJson<double>(json['remainingQuotaL']),
       quotaResetAt: serializer.fromJson<int?>(json['quotaResetAt']),
       isActive: serializer.fromJson<bool>(json['isActive']),
+      currentOdometerKm: serializer.fromJson<int>(json['currentOdometerKm']),
+      avgKmPerDay: serializer.fromJson<double>(json['avgKmPerDay']),
     );
   }
   @override
@@ -356,6 +418,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
       'remainingQuotaL': serializer.toJson<double>(remainingQuotaL),
       'quotaResetAt': serializer.toJson<int?>(quotaResetAt),
       'isActive': serializer.toJson<bool>(isActive),
+      'currentOdometerKm': serializer.toJson<int>(currentOdometerKm),
+      'avgKmPerDay': serializer.toJson<double>(avgKmPerDay),
     };
   }
 
@@ -369,6 +433,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
     double? remainingQuotaL,
     Value<int?> quotaResetAt = const Value.absent(),
     bool? isActive,
+    int? currentOdometerKm,
+    double? avgKmPerDay,
   }) => Vehicle(
     id: id ?? this.id,
     plateNumber: plateNumber ?? this.plateNumber,
@@ -379,6 +445,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
     remainingQuotaL: remainingQuotaL ?? this.remainingQuotaL,
     quotaResetAt: quotaResetAt.present ? quotaResetAt.value : this.quotaResetAt,
     isActive: isActive ?? this.isActive,
+    currentOdometerKm: currentOdometerKm ?? this.currentOdometerKm,
+    avgKmPerDay: avgKmPerDay ?? this.avgKmPerDay,
   );
   Vehicle copyWithCompanion(VehiclesCompanion data) {
     return Vehicle(
@@ -401,6 +469,12 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
           ? data.quotaResetAt.value
           : this.quotaResetAt,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      currentOdometerKm: data.currentOdometerKm.present
+          ? data.currentOdometerKm.value
+          : this.currentOdometerKm,
+      avgKmPerDay: data.avgKmPerDay.present
+          ? data.avgKmPerDay.value
+          : this.avgKmPerDay,
     );
   }
 
@@ -415,7 +489,9 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
           ..write('weeklyQuotaL: $weeklyQuotaL, ')
           ..write('remainingQuotaL: $remainingQuotaL, ')
           ..write('quotaResetAt: $quotaResetAt, ')
-          ..write('isActive: $isActive')
+          ..write('isActive: $isActive, ')
+          ..write('currentOdometerKm: $currentOdometerKm, ')
+          ..write('avgKmPerDay: $avgKmPerDay')
           ..write(')'))
         .toString();
   }
@@ -431,6 +507,8 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
     remainingQuotaL,
     quotaResetAt,
     isActive,
+    currentOdometerKm,
+    avgKmPerDay,
   );
   @override
   bool operator ==(Object other) =>
@@ -444,7 +522,9 @@ class Vehicle extends DataClass implements Insertable<Vehicle> {
           other.weeklyQuotaL == this.weeklyQuotaL &&
           other.remainingQuotaL == this.remainingQuotaL &&
           other.quotaResetAt == this.quotaResetAt &&
-          other.isActive == this.isActive);
+          other.isActive == this.isActive &&
+          other.currentOdometerKm == this.currentOdometerKm &&
+          other.avgKmPerDay == this.avgKmPerDay);
 }
 
 class VehiclesCompanion extends UpdateCompanion<Vehicle> {
@@ -457,6 +537,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
   final Value<double> remainingQuotaL;
   final Value<int?> quotaResetAt;
   final Value<bool> isActive;
+  final Value<int> currentOdometerKm;
+  final Value<double> avgKmPerDay;
   const VehiclesCompanion({
     this.id = const Value.absent(),
     this.plateNumber = const Value.absent(),
@@ -467,6 +549,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
     this.remainingQuotaL = const Value.absent(),
     this.quotaResetAt = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.currentOdometerKm = const Value.absent(),
+    this.avgKmPerDay = const Value.absent(),
   });
   VehiclesCompanion.insert({
     this.id = const Value.absent(),
@@ -478,6 +562,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
     this.remainingQuotaL = const Value.absent(),
     this.quotaResetAt = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.currentOdometerKm = const Value.absent(),
+    this.avgKmPerDay = const Value.absent(),
   }) : plateNumber = Value(plateNumber);
   static Insertable<Vehicle> custom({
     Expression<int>? id,
@@ -489,6 +575,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
     Expression<double>? remainingQuotaL,
     Expression<int>? quotaResetAt,
     Expression<bool>? isActive,
+    Expression<int>? currentOdometerKm,
+    Expression<double>? avgKmPerDay,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -500,6 +588,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
       if (remainingQuotaL != null) 'remaining_quota_l': remainingQuotaL,
       if (quotaResetAt != null) 'quota_reset_at': quotaResetAt,
       if (isActive != null) 'is_active': isActive,
+      if (currentOdometerKm != null) 'current_odometer_km': currentOdometerKm,
+      if (avgKmPerDay != null) 'avg_km_per_day': avgKmPerDay,
     });
   }
 
@@ -513,6 +603,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
     Value<double>? remainingQuotaL,
     Value<int?>? quotaResetAt,
     Value<bool>? isActive,
+    Value<int>? currentOdometerKm,
+    Value<double>? avgKmPerDay,
   }) {
     return VehiclesCompanion(
       id: id ?? this.id,
@@ -524,6 +616,8 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
       remainingQuotaL: remainingQuotaL ?? this.remainingQuotaL,
       quotaResetAt: quotaResetAt ?? this.quotaResetAt,
       isActive: isActive ?? this.isActive,
+      currentOdometerKm: currentOdometerKm ?? this.currentOdometerKm,
+      avgKmPerDay: avgKmPerDay ?? this.avgKmPerDay,
     );
   }
 
@@ -557,6 +651,12 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
+    if (currentOdometerKm.present) {
+      map['current_odometer_km'] = Variable<int>(currentOdometerKm.value);
+    }
+    if (avgKmPerDay.present) {
+      map['avg_km_per_day'] = Variable<double>(avgKmPerDay.value);
+    }
     return map;
   }
 
@@ -571,7 +671,9 @@ class VehiclesCompanion extends UpdateCompanion<Vehicle> {
           ..write('weeklyQuotaL: $weeklyQuotaL, ')
           ..write('remainingQuotaL: $remainingQuotaL, ')
           ..write('quotaResetAt: $quotaResetAt, ')
-          ..write('isActive: $isActive')
+          ..write('isActive: $isActive, ')
+          ..write('currentOdometerKm: $currentOdometerKm, ')
+          ..write('avgKmPerDay: $avgKmPerDay')
           ..write(')'))
         .toString();
   }
@@ -641,6 +743,15 @@ class $ComplianceLogsTable extends ComplianceLogs
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -648,6 +759,7 @@ class $ComplianceLogsTable extends ComplianceLogs
     type,
     issuedAt,
     expiresAt,
+    cost,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -694,6 +806,12 @@ class $ComplianceLogsTable extends ComplianceLogs
     } else if (isInserting) {
       context.missing(_expiresAtMeta);
     }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
     return context;
   }
 
@@ -723,6 +841,10 @@ class $ComplianceLogsTable extends ComplianceLogs
         DriftSqlType.int,
         data['${effectivePrefix}expires_at'],
       )!,
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
     );
   }
 
@@ -738,12 +860,14 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
   final String type;
   final int? issuedAt;
   final int expiresAt;
+  final double? cost;
   const ComplianceLog({
     required this.id,
     required this.vehicleId,
     required this.type,
     this.issuedAt,
     required this.expiresAt,
+    this.cost,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -755,6 +879,9 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       map['issued_at'] = Variable<int>(issuedAt);
     }
     map['expires_at'] = Variable<int>(expiresAt);
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
     return map;
   }
 
@@ -767,6 +894,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           ? const Value.absent()
           : Value(issuedAt),
       expiresAt: Value(expiresAt),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
     );
   }
 
@@ -781,6 +909,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       type: serializer.fromJson<String>(json['type']),
       issuedAt: serializer.fromJson<int?>(json['issuedAt']),
       expiresAt: serializer.fromJson<int>(json['expiresAt']),
+      cost: serializer.fromJson<double?>(json['cost']),
     );
   }
   @override
@@ -792,6 +921,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       'type': serializer.toJson<String>(type),
       'issuedAt': serializer.toJson<int?>(issuedAt),
       'expiresAt': serializer.toJson<int>(expiresAt),
+      'cost': serializer.toJson<double?>(cost),
     };
   }
 
@@ -801,12 +931,14 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
     String? type,
     Value<int?> issuedAt = const Value.absent(),
     int? expiresAt,
+    Value<double?> cost = const Value.absent(),
   }) => ComplianceLog(
     id: id ?? this.id,
     vehicleId: vehicleId ?? this.vehicleId,
     type: type ?? this.type,
     issuedAt: issuedAt.present ? issuedAt.value : this.issuedAt,
     expiresAt: expiresAt ?? this.expiresAt,
+    cost: cost.present ? cost.value : this.cost,
   );
   ComplianceLog copyWithCompanion(ComplianceLogsCompanion data) {
     return ComplianceLog(
@@ -815,6 +947,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       type: data.type.present ? data.type.value : this.type,
       issuedAt: data.issuedAt.present ? data.issuedAt.value : this.issuedAt,
       expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      cost: data.cost.present ? data.cost.value : this.cost,
     );
   }
 
@@ -825,13 +958,15 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           ..write('vehicleId: $vehicleId, ')
           ..write('type: $type, ')
           ..write('issuedAt: $issuedAt, ')
-          ..write('expiresAt: $expiresAt')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('cost: $cost')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, vehicleId, type, issuedAt, expiresAt);
+  int get hashCode =>
+      Object.hash(id, vehicleId, type, issuedAt, expiresAt, cost);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -840,7 +975,8 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           other.vehicleId == this.vehicleId &&
           other.type == this.type &&
           other.issuedAt == this.issuedAt &&
-          other.expiresAt == this.expiresAt);
+          other.expiresAt == this.expiresAt &&
+          other.cost == this.cost);
 }
 
 class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
@@ -849,12 +985,14 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
   final Value<String> type;
   final Value<int?> issuedAt;
   final Value<int> expiresAt;
+  final Value<double?> cost;
   const ComplianceLogsCompanion({
     this.id = const Value.absent(),
     this.vehicleId = const Value.absent(),
     this.type = const Value.absent(),
     this.issuedAt = const Value.absent(),
     this.expiresAt = const Value.absent(),
+    this.cost = const Value.absent(),
   });
   ComplianceLogsCompanion.insert({
     this.id = const Value.absent(),
@@ -862,6 +1000,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     required String type,
     this.issuedAt = const Value.absent(),
     required int expiresAt,
+    this.cost = const Value.absent(),
   }) : vehicleId = Value(vehicleId),
        type = Value(type),
        expiresAt = Value(expiresAt);
@@ -871,6 +1010,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     Expression<String>? type,
     Expression<int>? issuedAt,
     Expression<int>? expiresAt,
+    Expression<double>? cost,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -878,6 +1018,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
       if (type != null) 'type': type,
       if (issuedAt != null) 'issued_at': issuedAt,
       if (expiresAt != null) 'expires_at': expiresAt,
+      if (cost != null) 'cost': cost,
     });
   }
 
@@ -887,6 +1028,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     Value<String>? type,
     Value<int?>? issuedAt,
     Value<int>? expiresAt,
+    Value<double?>? cost,
   }) {
     return ComplianceLogsCompanion(
       id: id ?? this.id,
@@ -894,6 +1036,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
       type: type ?? this.type,
       issuedAt: issuedAt ?? this.issuedAt,
       expiresAt: expiresAt ?? this.expiresAt,
+      cost: cost ?? this.cost,
     );
   }
 
@@ -915,6 +1058,9 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     if (expiresAt.present) {
       map['expires_at'] = Variable<int>(expiresAt.value);
     }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
     return map;
   }
 
@@ -925,7 +1071,8 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
           ..write('vehicleId: $vehicleId, ')
           ..write('type: $type, ')
           ..write('issuedAt: $issuedAt, ')
-          ..write('expiresAt: $expiresAt')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('cost: $cost')
           ..write(')'))
         .toString();
   }
@@ -997,6 +1144,37 @@ class $ServiceLogsTable extends ServiceLogs
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextDueKmMeta = const VerificationMeta(
+    'nextDueKm',
+  );
+  @override
+  late final GeneratedColumn<int> nextDueKm = GeneratedColumn<int>(
+    'next_due_km',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextDueDateMeta = const VerificationMeta(
+    'nextDueDate',
+  );
+  @override
+  late final GeneratedColumn<int> nextDueDate = GeneratedColumn<int>(
+    'next_due_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1004,6 +1182,9 @@ class $ServiceLogsTable extends ServiceLogs
     description,
     serviceDate,
     odometer,
+    cost,
+    nextDueKm,
+    nextDueDate,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1056,6 +1237,27 @@ class $ServiceLogsTable extends ServiceLogs
         odometer.isAcceptableOrUnknown(data['odometer']!, _odometerMeta),
       );
     }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
+    if (data.containsKey('next_due_km')) {
+      context.handle(
+        _nextDueKmMeta,
+        nextDueKm.isAcceptableOrUnknown(data['next_due_km']!, _nextDueKmMeta),
+      );
+    }
+    if (data.containsKey('next_due_date')) {
+      context.handle(
+        _nextDueDateMeta,
+        nextDueDate.isAcceptableOrUnknown(
+          data['next_due_date']!,
+          _nextDueDateMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1085,6 +1287,18 @@ class $ServiceLogsTable extends ServiceLogs
         DriftSqlType.int,
         data['${effectivePrefix}odometer'],
       ),
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
+      nextDueKm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}next_due_km'],
+      ),
+      nextDueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}next_due_date'],
+      ),
     );
   }
 
@@ -1100,12 +1314,18 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
   final String description;
   final int serviceDate;
   final int? odometer;
+  final double? cost;
+  final int? nextDueKm;
+  final int? nextDueDate;
   const ServiceLog({
     required this.id,
     required this.vehicleId,
     required this.description,
     required this.serviceDate,
     this.odometer,
+    this.cost,
+    this.nextDueKm,
+    this.nextDueDate,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1116,6 +1336,15 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
     map['service_date'] = Variable<int>(serviceDate);
     if (!nullToAbsent || odometer != null) {
       map['odometer'] = Variable<int>(odometer);
+    }
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
+    if (!nullToAbsent || nextDueKm != null) {
+      map['next_due_km'] = Variable<int>(nextDueKm);
+    }
+    if (!nullToAbsent || nextDueDate != null) {
+      map['next_due_date'] = Variable<int>(nextDueDate);
     }
     return map;
   }
@@ -1129,6 +1358,13 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
       odometer: odometer == null && nullToAbsent
           ? const Value.absent()
           : Value(odometer),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      nextDueKm: nextDueKm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextDueKm),
+      nextDueDate: nextDueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextDueDate),
     );
   }
 
@@ -1143,6 +1379,9 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
       description: serializer.fromJson<String>(json['description']),
       serviceDate: serializer.fromJson<int>(json['serviceDate']),
       odometer: serializer.fromJson<int?>(json['odometer']),
+      cost: serializer.fromJson<double?>(json['cost']),
+      nextDueKm: serializer.fromJson<int?>(json['nextDueKm']),
+      nextDueDate: serializer.fromJson<int?>(json['nextDueDate']),
     );
   }
   @override
@@ -1154,6 +1393,9 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
       'description': serializer.toJson<String>(description),
       'serviceDate': serializer.toJson<int>(serviceDate),
       'odometer': serializer.toJson<int?>(odometer),
+      'cost': serializer.toJson<double?>(cost),
+      'nextDueKm': serializer.toJson<int?>(nextDueKm),
+      'nextDueDate': serializer.toJson<int?>(nextDueDate),
     };
   }
 
@@ -1163,12 +1405,18 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
     String? description,
     int? serviceDate,
     Value<int?> odometer = const Value.absent(),
+    Value<double?> cost = const Value.absent(),
+    Value<int?> nextDueKm = const Value.absent(),
+    Value<int?> nextDueDate = const Value.absent(),
   }) => ServiceLog(
     id: id ?? this.id,
     vehicleId: vehicleId ?? this.vehicleId,
     description: description ?? this.description,
     serviceDate: serviceDate ?? this.serviceDate,
     odometer: odometer.present ? odometer.value : this.odometer,
+    cost: cost.present ? cost.value : this.cost,
+    nextDueKm: nextDueKm.present ? nextDueKm.value : this.nextDueKm,
+    nextDueDate: nextDueDate.present ? nextDueDate.value : this.nextDueDate,
   );
   ServiceLog copyWithCompanion(ServiceLogsCompanion data) {
     return ServiceLog(
@@ -1181,6 +1429,11 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
           ? data.serviceDate.value
           : this.serviceDate,
       odometer: data.odometer.present ? data.odometer.value : this.odometer,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      nextDueKm: data.nextDueKm.present ? data.nextDueKm.value : this.nextDueKm,
+      nextDueDate: data.nextDueDate.present
+          ? data.nextDueDate.value
+          : this.nextDueDate,
     );
   }
 
@@ -1191,14 +1444,25 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
           ..write('vehicleId: $vehicleId, ')
           ..write('description: $description, ')
           ..write('serviceDate: $serviceDate, ')
-          ..write('odometer: $odometer')
+          ..write('odometer: $odometer, ')
+          ..write('cost: $cost, ')
+          ..write('nextDueKm: $nextDueKm, ')
+          ..write('nextDueDate: $nextDueDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, vehicleId, description, serviceDate, odometer);
+  int get hashCode => Object.hash(
+    id,
+    vehicleId,
+    description,
+    serviceDate,
+    odometer,
+    cost,
+    nextDueKm,
+    nextDueDate,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1207,7 +1471,10 @@ class ServiceLog extends DataClass implements Insertable<ServiceLog> {
           other.vehicleId == this.vehicleId &&
           other.description == this.description &&
           other.serviceDate == this.serviceDate &&
-          other.odometer == this.odometer);
+          other.odometer == this.odometer &&
+          other.cost == this.cost &&
+          other.nextDueKm == this.nextDueKm &&
+          other.nextDueDate == this.nextDueDate);
 }
 
 class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
@@ -1216,12 +1483,18 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
   final Value<String> description;
   final Value<int> serviceDate;
   final Value<int?> odometer;
+  final Value<double?> cost;
+  final Value<int?> nextDueKm;
+  final Value<int?> nextDueDate;
   const ServiceLogsCompanion({
     this.id = const Value.absent(),
     this.vehicleId = const Value.absent(),
     this.description = const Value.absent(),
     this.serviceDate = const Value.absent(),
     this.odometer = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.nextDueKm = const Value.absent(),
+    this.nextDueDate = const Value.absent(),
   });
   ServiceLogsCompanion.insert({
     this.id = const Value.absent(),
@@ -1229,6 +1502,9 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
     required String description,
     required int serviceDate,
     this.odometer = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.nextDueKm = const Value.absent(),
+    this.nextDueDate = const Value.absent(),
   }) : vehicleId = Value(vehicleId),
        description = Value(description),
        serviceDate = Value(serviceDate);
@@ -1238,6 +1514,9 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
     Expression<String>? description,
     Expression<int>? serviceDate,
     Expression<int>? odometer,
+    Expression<double>? cost,
+    Expression<int>? nextDueKm,
+    Expression<int>? nextDueDate,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1245,6 +1524,9 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
       if (description != null) 'description': description,
       if (serviceDate != null) 'service_date': serviceDate,
       if (odometer != null) 'odometer': odometer,
+      if (cost != null) 'cost': cost,
+      if (nextDueKm != null) 'next_due_km': nextDueKm,
+      if (nextDueDate != null) 'next_due_date': nextDueDate,
     });
   }
 
@@ -1254,6 +1536,9 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
     Value<String>? description,
     Value<int>? serviceDate,
     Value<int?>? odometer,
+    Value<double?>? cost,
+    Value<int?>? nextDueKm,
+    Value<int?>? nextDueDate,
   }) {
     return ServiceLogsCompanion(
       id: id ?? this.id,
@@ -1261,6 +1546,9 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
       description: description ?? this.description,
       serviceDate: serviceDate ?? this.serviceDate,
       odometer: odometer ?? this.odometer,
+      cost: cost ?? this.cost,
+      nextDueKm: nextDueKm ?? this.nextDueKm,
+      nextDueDate: nextDueDate ?? this.nextDueDate,
     );
   }
 
@@ -1282,6 +1570,15 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
     if (odometer.present) {
       map['odometer'] = Variable<int>(odometer.value);
     }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (nextDueKm.present) {
+      map['next_due_km'] = Variable<int>(nextDueKm.value);
+    }
+    if (nextDueDate.present) {
+      map['next_due_date'] = Variable<int>(nextDueDate.value);
+    }
     return map;
   }
 
@@ -1292,7 +1589,10 @@ class ServiceLogsCompanion extends UpdateCompanion<ServiceLog> {
           ..write('vehicleId: $vehicleId, ')
           ..write('description: $description, ')
           ..write('serviceDate: $serviceDate, ')
-          ..write('odometer: $odometer')
+          ..write('odometer: $odometer, ')
+          ..write('cost: $cost, ')
+          ..write('nextDueKm: $nextDueKm, ')
+          ..write('nextDueDate: $nextDueDate')
           ..write(')'))
         .toString();
   }
@@ -1371,6 +1671,17 @@ class $FuelTransactionsTable extends FuelTransactions
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _odometerKmMeta = const VerificationMeta(
+    'odometerKm',
+  );
+  @override
+  late final GeneratedColumn<int> odometerKm = GeneratedColumn<int>(
+    'odometer_km',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1379,6 +1690,7 @@ class $FuelTransactionsTable extends FuelTransactions
     litres,
     cost,
     balanceL,
+    odometerKm,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1438,6 +1750,12 @@ class $FuelTransactionsTable extends FuelTransactions
     } else if (isInserting) {
       context.missing(_balanceLMeta);
     }
+    if (data.containsKey('odometer_km')) {
+      context.handle(
+        _odometerKmMeta,
+        odometerKm.isAcceptableOrUnknown(data['odometer_km']!, _odometerKmMeta),
+      );
+    }
     return context;
   }
 
@@ -1471,6 +1789,10 @@ class $FuelTransactionsTable extends FuelTransactions
         DriftSqlType.double,
         data['${effectivePrefix}balance_l'],
       )!,
+      odometerKm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}odometer_km'],
+      ),
     );
   }
 
@@ -1487,6 +1809,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
   final double litres;
   final double cost;
   final double balanceL;
+  final int? odometerKm;
   const FuelTransaction({
     required this.id,
     required this.vehicleId,
@@ -1494,6 +1817,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
     required this.litres,
     required this.cost,
     required this.balanceL,
+    this.odometerKm,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1504,6 +1828,9 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
     map['litres'] = Variable<double>(litres);
     map['cost'] = Variable<double>(cost);
     map['balance_l'] = Variable<double>(balanceL);
+    if (!nullToAbsent || odometerKm != null) {
+      map['odometer_km'] = Variable<int>(odometerKm);
+    }
     return map;
   }
 
@@ -1515,6 +1842,9 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
       litres: Value(litres),
       cost: Value(cost),
       balanceL: Value(balanceL),
+      odometerKm: odometerKm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(odometerKm),
     );
   }
 
@@ -1530,6 +1860,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
       litres: serializer.fromJson<double>(json['litres']),
       cost: serializer.fromJson<double>(json['cost']),
       balanceL: serializer.fromJson<double>(json['balanceL']),
+      odometerKm: serializer.fromJson<int?>(json['odometerKm']),
     );
   }
   @override
@@ -1542,6 +1873,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
       'litres': serializer.toJson<double>(litres),
       'cost': serializer.toJson<double>(cost),
       'balanceL': serializer.toJson<double>(balanceL),
+      'odometerKm': serializer.toJson<int?>(odometerKm),
     };
   }
 
@@ -1552,6 +1884,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
     double? litres,
     double? cost,
     double? balanceL,
+    Value<int?> odometerKm = const Value.absent(),
   }) => FuelTransaction(
     id: id ?? this.id,
     vehicleId: vehicleId ?? this.vehicleId,
@@ -1559,6 +1892,7 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
     litres: litres ?? this.litres,
     cost: cost ?? this.cost,
     balanceL: balanceL ?? this.balanceL,
+    odometerKm: odometerKm.present ? odometerKm.value : this.odometerKm,
   );
   FuelTransaction copyWithCompanion(FuelTransactionsCompanion data) {
     return FuelTransaction(
@@ -1570,6 +1904,9 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
       litres: data.litres.present ? data.litres.value : this.litres,
       cost: data.cost.present ? data.cost.value : this.cost,
       balanceL: data.balanceL.present ? data.balanceL.value : this.balanceL,
+      odometerKm: data.odometerKm.present
+          ? data.odometerKm.value
+          : this.odometerKm,
     );
   }
 
@@ -1581,14 +1918,22 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
           ..write('transactionDate: $transactionDate, ')
           ..write('litres: $litres, ')
           ..write('cost: $cost, ')
-          ..write('balanceL: $balanceL')
+          ..write('balanceL: $balanceL, ')
+          ..write('odometerKm: $odometerKm')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, vehicleId, transactionDate, litres, cost, balanceL);
+  int get hashCode => Object.hash(
+    id,
+    vehicleId,
+    transactionDate,
+    litres,
+    cost,
+    balanceL,
+    odometerKm,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1598,7 +1943,8 @@ class FuelTransaction extends DataClass implements Insertable<FuelTransaction> {
           other.transactionDate == this.transactionDate &&
           other.litres == this.litres &&
           other.cost == this.cost &&
-          other.balanceL == this.balanceL);
+          other.balanceL == this.balanceL &&
+          other.odometerKm == this.odometerKm);
 }
 
 class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
@@ -1608,6 +1954,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
   final Value<double> litres;
   final Value<double> cost;
   final Value<double> balanceL;
+  final Value<int?> odometerKm;
   const FuelTransactionsCompanion({
     this.id = const Value.absent(),
     this.vehicleId = const Value.absent(),
@@ -1615,6 +1962,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
     this.litres = const Value.absent(),
     this.cost = const Value.absent(),
     this.balanceL = const Value.absent(),
+    this.odometerKm = const Value.absent(),
   });
   FuelTransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1623,6 +1971,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
     required double litres,
     required double cost,
     required double balanceL,
+    this.odometerKm = const Value.absent(),
   }) : vehicleId = Value(vehicleId),
        transactionDate = Value(transactionDate),
        litres = Value(litres),
@@ -1635,6 +1984,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
     Expression<double>? litres,
     Expression<double>? cost,
     Expression<double>? balanceL,
+    Expression<int>? odometerKm,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1643,6 +1993,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
       if (litres != null) 'litres': litres,
       if (cost != null) 'cost': cost,
       if (balanceL != null) 'balance_l': balanceL,
+      if (odometerKm != null) 'odometer_km': odometerKm,
     });
   }
 
@@ -1653,6 +2004,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
     Value<double>? litres,
     Value<double>? cost,
     Value<double>? balanceL,
+    Value<int?>? odometerKm,
   }) {
     return FuelTransactionsCompanion(
       id: id ?? this.id,
@@ -1661,6 +2013,7 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
       litres: litres ?? this.litres,
       cost: cost ?? this.cost,
       balanceL: balanceL ?? this.balanceL,
+      odometerKm: odometerKm ?? this.odometerKm,
     );
   }
 
@@ -1685,6 +2038,9 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
     if (balanceL.present) {
       map['balance_l'] = Variable<double>(balanceL.value);
     }
+    if (odometerKm.present) {
+      map['odometer_km'] = Variable<int>(odometerKm.value);
+    }
     return map;
   }
 
@@ -1696,7 +2052,8 @@ class FuelTransactionsCompanion extends UpdateCompanion<FuelTransaction> {
           ..write('transactionDate: $transactionDate, ')
           ..write('litres: $litres, ')
           ..write('cost: $cost, ')
-          ..write('balanceL: $balanceL')
+          ..write('balanceL: $balanceL, ')
+          ..write('odometerKm: $odometerKm')
           ..write(')'))
         .toString();
   }
@@ -1757,6 +2114,8 @@ typedef $$VehiclesTableCreateCompanionBuilder = VehiclesCompanion Function({
   Value<double> remainingQuotaL,
   Value<int?> quotaResetAt,
   Value<bool> isActive,
+  Value<int> currentOdometerKm,
+  Value<double> avgKmPerDay,
 });
 typedef $$VehiclesTableUpdateCompanionBuilder = VehiclesCompanion Function({
   Value<int> id,
@@ -1768,6 +2127,8 @@ typedef $$VehiclesTableUpdateCompanionBuilder = VehiclesCompanion Function({
   Value<double> remainingQuotaL,
   Value<int?> quotaResetAt,
   Value<bool> isActive,
+  Value<int> currentOdometerKm,
+  Value<double> avgKmPerDay,
 });
 
 final class $$VehiclesTableReferences
@@ -1882,6 +2243,16 @@ class $$VehiclesTableFilterComposer
 
   ColumnFilters<bool> get isActive => $composableBuilder(
     column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get currentOdometerKm => $composableBuilder(
+    column: $table.currentOdometerKm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get avgKmPerDay => $composableBuilder(
+    column: $table.avgKmPerDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2014,6 +2385,16 @@ class $$VehiclesTableOrderingComposer
     column: $table.isActive,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get currentOdometerKm => $composableBuilder(
+    column: $table.currentOdometerKm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get avgKmPerDay => $composableBuilder(
+    column: $table.avgKmPerDay,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$VehiclesTableAnnotationComposer
@@ -2061,6 +2442,16 @@ class $$VehiclesTableAnnotationComposer
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get currentOdometerKm => $composableBuilder(
+    column: $table.currentOdometerKm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get avgKmPerDay => $composableBuilder(
+    column: $table.avgKmPerDay,
+    builder: (column) => column,
+  );
 
   Expression<T> complianceLogsRefs<T extends Object>(
     Expression<T> Function($$ComplianceLogsTableAnnotationComposer a) f,
@@ -2179,6 +2570,8 @@ class $$VehiclesTableTableManager
                 Value<double> remainingQuotaL = const Value.absent(),
                 Value<int?> quotaResetAt = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<int> currentOdometerKm = const Value.absent(),
+                Value<double> avgKmPerDay = const Value.absent(),
               }) => VehiclesCompanion(
                 id: id,
                 plateNumber: plateNumber,
@@ -2189,6 +2582,8 @@ class $$VehiclesTableTableManager
                 remainingQuotaL: remainingQuotaL,
                 quotaResetAt: quotaResetAt,
                 isActive: isActive,
+                currentOdometerKm: currentOdometerKm,
+                avgKmPerDay: avgKmPerDay,
               ),
           createCompanionCallback:
               ({
@@ -2201,6 +2596,8 @@ class $$VehiclesTableTableManager
                 Value<double> remainingQuotaL = const Value.absent(),
                 Value<int?> quotaResetAt = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<int> currentOdometerKm = const Value.absent(),
+                Value<double> avgKmPerDay = const Value.absent(),
               }) => VehiclesCompanion.insert(
                 id: id,
                 plateNumber: plateNumber,
@@ -2211,6 +2608,8 @@ class $$VehiclesTableTableManager
                 remainingQuotaL: remainingQuotaL,
                 quotaResetAt: quotaResetAt,
                 isActive: isActive,
+                currentOdometerKm: currentOdometerKm,
+                avgKmPerDay: avgKmPerDay,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2332,6 +2731,7 @@ typedef $$ComplianceLogsTableCreateCompanionBuilder =
       required String type,
       Value<int?> issuedAt,
       required int expiresAt,
+      Value<double?> cost,
     });
 typedef $$ComplianceLogsTableUpdateCompanionBuilder =
     ComplianceLogsCompanion Function({
@@ -2340,6 +2740,7 @@ typedef $$ComplianceLogsTableUpdateCompanionBuilder =
       Value<String> type,
       Value<int?> issuedAt,
       Value<int> expiresAt,
+      Value<double?> cost,
     });
 
 final class $$ComplianceLogsTableReferences
@@ -2397,6 +2798,11 @@ class $$ComplianceLogsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VehiclesTableFilterComposer get vehicleId {
     final $$VehiclesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2450,6 +2856,11 @@ class $$ComplianceLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2494,6 +2905,9 @@ class $$ComplianceLogsTableAnnotationComposer
 
   GeneratedColumn<int> get expiresAt =>
       $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<double> get cost =>
+      $composableBuilder(column: $table.cost, builder: (column) => column);
 
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
@@ -2554,12 +2968,14 @@ class $$ComplianceLogsTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<int?> issuedAt = const Value.absent(),
                 Value<int> expiresAt = const Value.absent(),
+                Value<double?> cost = const Value.absent(),
               }) => ComplianceLogsCompanion(
                 id: id,
                 vehicleId: vehicleId,
                 type: type,
                 issuedAt: issuedAt,
                 expiresAt: expiresAt,
+                cost: cost,
               ),
           createCompanionCallback:
               ({
@@ -2568,12 +2984,14 @@ class $$ComplianceLogsTableTableManager
                 required String type,
                 Value<int?> issuedAt = const Value.absent(),
                 required int expiresAt,
+                Value<double?> cost = const Value.absent(),
               }) => ComplianceLogsCompanion.insert(
                 id: id,
                 vehicleId: vehicleId,
                 type: type,
                 issuedAt: issuedAt,
                 expiresAt: expiresAt,
+                cost: cost,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2647,6 +3065,9 @@ typedef $$ServiceLogsTableCreateCompanionBuilder =
       required String description,
       required int serviceDate,
       Value<int?> odometer,
+      Value<double?> cost,
+      Value<int?> nextDueKm,
+      Value<int?> nextDueDate,
     });
 typedef $$ServiceLogsTableUpdateCompanionBuilder =
     ServiceLogsCompanion Function({
@@ -2655,6 +3076,9 @@ typedef $$ServiceLogsTableUpdateCompanionBuilder =
       Value<String> description,
       Value<int> serviceDate,
       Value<int?> odometer,
+      Value<double?> cost,
+      Value<int?> nextDueKm,
+      Value<int?> nextDueDate,
     });
 
 final class $$ServiceLogsTableReferences
@@ -2705,6 +3129,21 @@ class $$ServiceLogsTableFilterComposer
 
   ColumnFilters<int> get odometer => $composableBuilder(
     column: $table.odometer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nextDueKm => $composableBuilder(
+    column: $table.nextDueKm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2761,6 +3200,21 @@ class $$ServiceLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nextDueKm => $composableBuilder(
+    column: $table.nextDueKm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2809,6 +3263,17 @@ class $$ServiceLogsTableAnnotationComposer
 
   GeneratedColumn<int> get odometer =>
       $composableBuilder(column: $table.odometer, builder: (column) => column);
+
+  GeneratedColumn<double> get cost =>
+      $composableBuilder(column: $table.cost, builder: (column) => column);
+
+  GeneratedColumn<int> get nextDueKm =>
+      $composableBuilder(column: $table.nextDueKm, builder: (column) => column);
+
+  GeneratedColumn<int> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
+    builder: (column) => column,
+  );
 
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
@@ -2867,12 +3332,18 @@ class $$ServiceLogsTableTableManager
                 Value<String> description = const Value.absent(),
                 Value<int> serviceDate = const Value.absent(),
                 Value<int?> odometer = const Value.absent(),
+                Value<double?> cost = const Value.absent(),
+                Value<int?> nextDueKm = const Value.absent(),
+                Value<int?> nextDueDate = const Value.absent(),
               }) => ServiceLogsCompanion(
                 id: id,
                 vehicleId: vehicleId,
                 description: description,
                 serviceDate: serviceDate,
                 odometer: odometer,
+                cost: cost,
+                nextDueKm: nextDueKm,
+                nextDueDate: nextDueDate,
               ),
           createCompanionCallback:
               ({
@@ -2881,12 +3352,18 @@ class $$ServiceLogsTableTableManager
                 required String description,
                 required int serviceDate,
                 Value<int?> odometer = const Value.absent(),
+                Value<double?> cost = const Value.absent(),
+                Value<int?> nextDueKm = const Value.absent(),
+                Value<int?> nextDueDate = const Value.absent(),
               }) => ServiceLogsCompanion.insert(
                 id: id,
                 vehicleId: vehicleId,
                 description: description,
                 serviceDate: serviceDate,
                 odometer: odometer,
+                cost: cost,
+                nextDueKm: nextDueKm,
+                nextDueDate: nextDueDate,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2961,6 +3438,7 @@ typedef $$FuelTransactionsTableCreateCompanionBuilder =
       required double litres,
       required double cost,
       required double balanceL,
+      Value<int?> odometerKm,
     });
 typedef $$FuelTransactionsTableUpdateCompanionBuilder =
     FuelTransactionsCompanion Function({
@@ -2970,6 +3448,7 @@ typedef $$FuelTransactionsTableUpdateCompanionBuilder =
       Value<double> litres,
       Value<double> cost,
       Value<double> balanceL,
+      Value<int?> odometerKm,
     });
 
 final class $$FuelTransactionsTableReferences
@@ -3033,6 +3512,11 @@ class $$FuelTransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get odometerKm => $composableBuilder(
+    column: $table.odometerKm,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VehiclesTableFilterComposer get vehicleId {
     final $$VehiclesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -3091,6 +3575,11 @@ class $$FuelTransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get odometerKm => $composableBuilder(
+    column: $table.odometerKm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3140,6 +3629,11 @@ class $$FuelTransactionsTableAnnotationComposer
 
   GeneratedColumn<double> get balanceL =>
       $composableBuilder(column: $table.balanceL, builder: (column) => column);
+
+  GeneratedColumn<int> get odometerKm => $composableBuilder(
+    column: $table.odometerKm,
+    builder: (column) => column,
+  );
 
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
@@ -3201,6 +3695,7 @@ class $$FuelTransactionsTableTableManager
                 Value<double> litres = const Value.absent(),
                 Value<double> cost = const Value.absent(),
                 Value<double> balanceL = const Value.absent(),
+                Value<int?> odometerKm = const Value.absent(),
               }) => FuelTransactionsCompanion(
                 id: id,
                 vehicleId: vehicleId,
@@ -3208,6 +3703,7 @@ class $$FuelTransactionsTableTableManager
                 litres: litres,
                 cost: cost,
                 balanceL: balanceL,
+                odometerKm: odometerKm,
               ),
           createCompanionCallback:
               ({
@@ -3217,6 +3713,7 @@ class $$FuelTransactionsTableTableManager
                 required double litres,
                 required double cost,
                 required double balanceL,
+                Value<int?> odometerKm = const Value.absent(),
               }) => FuelTransactionsCompanion.insert(
                 id: id,
                 vehicleId: vehicleId,
@@ -3224,6 +3721,7 @@ class $$FuelTransactionsTableTableManager
                 litres: litres,
                 cost: cost,
                 balanceL: balanceL,
+                odometerKm: odometerKm,
               ),
           withReferenceMapper: (p0) => p0
               .map(

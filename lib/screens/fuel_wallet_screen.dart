@@ -6,7 +6,9 @@ import '../core/providers.dart';
 import '../models/tables.dart';
 import 'compliance_screen.dart';
 import 'fuel_qr_screen.dart';
+import 'insights_screen.dart';
 import 'qr_scan_screen.dart';
+import 'service_screen.dart';
 
 class FuelWalletScreen extends ConsumerStatefulWidget {
   const FuelWalletScreen({super.key});
@@ -87,6 +89,20 @@ class _FuelWalletScreenState extends ConsumerState<FuelWalletScreen>
       appBar: AppBar(
         title: const Text('Fuel Wallet'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.build_outlined),
+            tooltip: 'Service records',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ServiceScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.insights_outlined),
+            tooltip: 'Insights',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const InsightsScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.assignment_outlined),
             tooltip: 'Compliance records',

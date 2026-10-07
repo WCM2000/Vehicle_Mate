@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,19 +55,20 @@ class ComplianceScreen extends ConsumerWidget {
     WidgetRef ref,
     Vehicle vehicle,
   ) async {
-    final result = await showDialog<(String, DateTime)>(
+    final result = await showDialog<(String, DateTime, double?)>(
       context: context,
       builder: (_) => const _AddComplianceDialog(),
     );
     if (result == null) return;
 
-    final (type, expiry) = result;
+    final (type, expiry, cost) = result;
     final db = ref.read(databaseProvider);
     final id = await db.into(db.complianceLogs).insert(
           ComplianceLogsCompanion.insert(
             vehicleId: vehicle.id,
             type: type,
             expiresAt: expiry.millisecondsSinceEpoch,
+            cost: Value(cost),
           ),
         );
 
@@ -104,6 +106,13 @@ class _AddComplianceDialog extends StatefulWidget {
 class _AddComplianceDialogState extends State<_AddComplianceDialog> {
   String _type = _complianceTypes.keys.first;
   DateTime? _expiry;
+  final _costController = TextEditingController();
+
+  @override
+  void dispose() {
+    _costController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -141,6 +150,12 @@ class _AddComplianceDialogState extends State<_AddComplianceDialog> {
                   : 'Expires ${_expiry!.year}-${_expiry!.month}-${_expiry!.day}',
             ),
           ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _costController,
+            decoration: const InputDecoration(labelText: 'Cost (optional)'),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
         ],
       ),
       actions: [
@@ -151,7 +166,9 @@ class _AddComplianceDialogState extends State<_AddComplianceDialog> {
         FilledButton(
           onPressed: _expiry == null
               ? null
-              : () => Navigator.of(context).pop((_type, _expiry!)),
+              : () => Navigator.of(context).pop(
+                    (_type, _expiry!, double.tryParse(_costController.text.trim())),
+                  ),
           child: const Text('Save'),
         ),
       ],
