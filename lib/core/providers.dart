@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/tables.dart';
 import '../services/compliance_alert_service.dart';
+import '../services/google_drive_service.dart';
 import '../services/quota_service.dart';
 import '../services/sms_listener_service.dart';
 
@@ -53,6 +54,10 @@ final smsListenerProvider = Provider<FuelSmsListener>(
     ref.watch(databaseProvider),
     ref.watch(quotaServiceProvider),
   ),
+);
+
+final googleDriveServiceProvider = Provider<GoogleDriveService>(
+  (ref) => GoogleDriveService(),
 );
 
 final serviceLogsProvider = StreamProvider<List<ServiceLog>>((ref) {

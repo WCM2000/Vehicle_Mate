@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/providers.dart';
 import '../models/tables.dart';
+import 'backup_screen.dart';
 import 'compliance_screen.dart';
 import 'fuel_qr_screen.dart';
 import 'insights_screen.dart';
@@ -108,6 +109,13 @@ class _FuelWalletScreenState extends ConsumerState<FuelWalletScreen>
             tooltip: 'Compliance records',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ComplianceScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.cloud_sync_outlined),
+            tooltip: 'Backup & restore',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const BackupScreen()),
             ),
           ),
         ],
