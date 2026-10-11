@@ -25,6 +25,7 @@ class ComplianceLogs extends Table {
   IntColumn get issuedAt => integer().nullable()();
   IntColumn get expiresAt => integer()();
   RealColumn get cost => real().nullable()();
+  TextColumn get documentPath => text().nullable()();
 }
 
 class ServiceLogs extends Table {
@@ -55,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -83,6 +84,12 @@ class AppDatabase extends _$AppDatabase {
             await m.alterTable(TableMigration(
               fuelTransactions,
               newColumns: [fuelTransactions.odometerKm],
+            ));
+          }
+          if (from < 4) {
+            await m.alterTable(TableMigration(
+              complianceLogs,
+              newColumns: [complianceLogs.documentPath],
             ));
           }
         },

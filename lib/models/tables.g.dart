@@ -752,6 +752,17 @@ class $ComplianceLogsTable extends ComplianceLogs
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _documentPathMeta = const VerificationMeta(
+    'documentPath',
+  );
+  @override
+  late final GeneratedColumn<String> documentPath = GeneratedColumn<String>(
+    'document_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -760,6 +771,7 @@ class $ComplianceLogsTable extends ComplianceLogs
     issuedAt,
     expiresAt,
     cost,
+    documentPath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -812,6 +824,15 @@ class $ComplianceLogsTable extends ComplianceLogs
         cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
       );
     }
+    if (data.containsKey('document_path')) {
+      context.handle(
+        _documentPathMeta,
+        documentPath.isAcceptableOrUnknown(
+          data['document_path']!,
+          _documentPathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -845,6 +866,10 @@ class $ComplianceLogsTable extends ComplianceLogs
         DriftSqlType.double,
         data['${effectivePrefix}cost'],
       ),
+      documentPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_path'],
+      ),
     );
   }
 
@@ -861,6 +886,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
   final int? issuedAt;
   final int expiresAt;
   final double? cost;
+  final String? documentPath;
   const ComplianceLog({
     required this.id,
     required this.vehicleId,
@@ -868,6 +894,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
     this.issuedAt,
     required this.expiresAt,
     this.cost,
+    this.documentPath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -882,6 +909,9 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
     if (!nullToAbsent || cost != null) {
       map['cost'] = Variable<double>(cost);
     }
+    if (!nullToAbsent || documentPath != null) {
+      map['document_path'] = Variable<String>(documentPath);
+    }
     return map;
   }
 
@@ -895,6 +925,9 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           : Value(issuedAt),
       expiresAt: Value(expiresAt),
       cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      documentPath: documentPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(documentPath),
     );
   }
 
@@ -910,6 +943,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       issuedAt: serializer.fromJson<int?>(json['issuedAt']),
       expiresAt: serializer.fromJson<int>(json['expiresAt']),
       cost: serializer.fromJson<double?>(json['cost']),
+      documentPath: serializer.fromJson<String?>(json['documentPath']),
     );
   }
   @override
@@ -922,6 +956,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       'issuedAt': serializer.toJson<int?>(issuedAt),
       'expiresAt': serializer.toJson<int>(expiresAt),
       'cost': serializer.toJson<double?>(cost),
+      'documentPath': serializer.toJson<String?>(documentPath),
     };
   }
 
@@ -932,6 +967,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
     Value<int?> issuedAt = const Value.absent(),
     int? expiresAt,
     Value<double?> cost = const Value.absent(),
+    Value<String?> documentPath = const Value.absent(),
   }) => ComplianceLog(
     id: id ?? this.id,
     vehicleId: vehicleId ?? this.vehicleId,
@@ -939,6 +975,7 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
     issuedAt: issuedAt.present ? issuedAt.value : this.issuedAt,
     expiresAt: expiresAt ?? this.expiresAt,
     cost: cost.present ? cost.value : this.cost,
+    documentPath: documentPath.present ? documentPath.value : this.documentPath,
   );
   ComplianceLog copyWithCompanion(ComplianceLogsCompanion data) {
     return ComplianceLog(
@@ -948,6 +985,9 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
       issuedAt: data.issuedAt.present ? data.issuedAt.value : this.issuedAt,
       expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
       cost: data.cost.present ? data.cost.value : this.cost,
+      documentPath: data.documentPath.present
+          ? data.documentPath.value
+          : this.documentPath,
     );
   }
 
@@ -959,14 +999,15 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           ..write('type: $type, ')
           ..write('issuedAt: $issuedAt, ')
           ..write('expiresAt: $expiresAt, ')
-          ..write('cost: $cost')
+          ..write('cost: $cost, ')
+          ..write('documentPath: $documentPath')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, vehicleId, type, issuedAt, expiresAt, cost);
+      Object.hash(id, vehicleId, type, issuedAt, expiresAt, cost, documentPath);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -976,7 +1017,8 @@ class ComplianceLog extends DataClass implements Insertable<ComplianceLog> {
           other.type == this.type &&
           other.issuedAt == this.issuedAt &&
           other.expiresAt == this.expiresAt &&
-          other.cost == this.cost);
+          other.cost == this.cost &&
+          other.documentPath == this.documentPath);
 }
 
 class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
@@ -986,6 +1028,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
   final Value<int?> issuedAt;
   final Value<int> expiresAt;
   final Value<double?> cost;
+  final Value<String?> documentPath;
   const ComplianceLogsCompanion({
     this.id = const Value.absent(),
     this.vehicleId = const Value.absent(),
@@ -993,6 +1036,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     this.issuedAt = const Value.absent(),
     this.expiresAt = const Value.absent(),
     this.cost = const Value.absent(),
+    this.documentPath = const Value.absent(),
   });
   ComplianceLogsCompanion.insert({
     this.id = const Value.absent(),
@@ -1001,6 +1045,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     this.issuedAt = const Value.absent(),
     required int expiresAt,
     this.cost = const Value.absent(),
+    this.documentPath = const Value.absent(),
   }) : vehicleId = Value(vehicleId),
        type = Value(type),
        expiresAt = Value(expiresAt);
@@ -1011,6 +1056,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     Expression<int>? issuedAt,
     Expression<int>? expiresAt,
     Expression<double>? cost,
+    Expression<String>? documentPath,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1019,6 +1065,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
       if (issuedAt != null) 'issued_at': issuedAt,
       if (expiresAt != null) 'expires_at': expiresAt,
       if (cost != null) 'cost': cost,
+      if (documentPath != null) 'document_path': documentPath,
     });
   }
 
@@ -1029,6 +1076,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     Value<int?>? issuedAt,
     Value<int>? expiresAt,
     Value<double?>? cost,
+    Value<String?>? documentPath,
   }) {
     return ComplianceLogsCompanion(
       id: id ?? this.id,
@@ -1037,6 +1085,7 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
       issuedAt: issuedAt ?? this.issuedAt,
       expiresAt: expiresAt ?? this.expiresAt,
       cost: cost ?? this.cost,
+      documentPath: documentPath ?? this.documentPath,
     );
   }
 
@@ -1061,6 +1110,9 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
     if (cost.present) {
       map['cost'] = Variable<double>(cost.value);
     }
+    if (documentPath.present) {
+      map['document_path'] = Variable<String>(documentPath.value);
+    }
     return map;
   }
 
@@ -1072,7 +1124,8 @@ class ComplianceLogsCompanion extends UpdateCompanion<ComplianceLog> {
           ..write('type: $type, ')
           ..write('issuedAt: $issuedAt, ')
           ..write('expiresAt: $expiresAt, ')
-          ..write('cost: $cost')
+          ..write('cost: $cost, ')
+          ..write('documentPath: $documentPath')
           ..write(')'))
         .toString();
   }
@@ -2732,6 +2785,7 @@ typedef $$ComplianceLogsTableCreateCompanionBuilder =
       Value<int?> issuedAt,
       required int expiresAt,
       Value<double?> cost,
+      Value<String?> documentPath,
     });
 typedef $$ComplianceLogsTableUpdateCompanionBuilder =
     ComplianceLogsCompanion Function({
@@ -2741,6 +2795,7 @@ typedef $$ComplianceLogsTableUpdateCompanionBuilder =
       Value<int?> issuedAt,
       Value<int> expiresAt,
       Value<double?> cost,
+      Value<String?> documentPath,
     });
 
 final class $$ComplianceLogsTableReferences
@@ -2803,6 +2858,11 @@ class $$ComplianceLogsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get documentPath => $composableBuilder(
+    column: $table.documentPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VehiclesTableFilterComposer get vehicleId {
     final $$VehiclesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2861,6 +2921,11 @@ class $$ComplianceLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get documentPath => $composableBuilder(
+    column: $table.documentPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2908,6 +2973,11 @@ class $$ComplianceLogsTableAnnotationComposer
 
   GeneratedColumn<double> get cost =>
       $composableBuilder(column: $table.cost, builder: (column) => column);
+
+  GeneratedColumn<String> get documentPath => $composableBuilder(
+    column: $table.documentPath,
+    builder: (column) => column,
+  );
 
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
@@ -2969,6 +3039,7 @@ class $$ComplianceLogsTableTableManager
                 Value<int?> issuedAt = const Value.absent(),
                 Value<int> expiresAt = const Value.absent(),
                 Value<double?> cost = const Value.absent(),
+                Value<String?> documentPath = const Value.absent(),
               }) => ComplianceLogsCompanion(
                 id: id,
                 vehicleId: vehicleId,
@@ -2976,6 +3047,7 @@ class $$ComplianceLogsTableTableManager
                 issuedAt: issuedAt,
                 expiresAt: expiresAt,
                 cost: cost,
+                documentPath: documentPath,
               ),
           createCompanionCallback:
               ({
@@ -2985,6 +3057,7 @@ class $$ComplianceLogsTableTableManager
                 Value<int?> issuedAt = const Value.absent(),
                 required int expiresAt,
                 Value<double?> cost = const Value.absent(),
+                Value<String?> documentPath = const Value.absent(),
               }) => ComplianceLogsCompanion.insert(
                 id: id,
                 vehicleId: vehicleId,
@@ -2992,6 +3065,7 @@ class $$ComplianceLogsTableTableManager
                 issuedAt: issuedAt,
                 expiresAt: expiresAt,
                 cost: cost,
+                documentPath: documentPath,
               ),
           withReferenceMapper: (p0) => p0
               .map(
